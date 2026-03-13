@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Modelos do Sistema de Autenticação (RBAC)
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  role      Role     @default(CORRETOR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  leads Lead[] // Leads onde ele é o corretor atribuído
+}
+
+enum Role {
+  DIRETOR
+  GERENTE
+  CORRETOR
+}
+
+// Modelos de Negócio (Leads e Kanban)
+model Lead {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?
+  phone     String?
+  cpf       String?  @unique
+  status    Status   @default(NOVO)
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Atribuição ao Corretor
+  corretorId String?
+  corretor   User?   @relation(fields: [corretorId], references: [id])
+
+  // Relacionamentos
+  documents Document[]
+}
+
+enum Status {
+  NOVO
+  CONTATO_INICIAL
+  AVANCADO
+  EM_FECHAMENTO
+}
+
+// Gerenciamento dos Documentos do Dossiê
+model Document {
+  id         String   @id @default(uuid())
+  type       DocType
+  fileUrl    String // URL do arquivo no Supabase Storage
+  fileName   String
+  uploadedAt DateTime @default(now())
+
+  // Relacionamento com o Lead
+  leadId String
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+enum DocType {
+  CERTIDAO_ESTADO_CIVIL
+  CERTIDAO_DEPENDENTES
+  COMPROVANTE_ENDERECO
+  COMPROVANTE_RENDA
+  CTPS
+  EXTRATO_FGTS
+  RG_CPF
+  SIMULACAO_CAIXA
+  RESTRICOES
+}
