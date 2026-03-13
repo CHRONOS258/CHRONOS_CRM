@@ -11,7 +11,7 @@ const port = process.env.PORT || 10000;
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Tratar todas as rotas direcionando para o index.html do React (SPA behavior)
-app.get('/*', (req, res) => {
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
