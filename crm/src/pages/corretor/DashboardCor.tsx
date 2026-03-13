@@ -1,159 +1,86 @@
-import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Camera, Calendar, Users, Wrench, Edit2, Check } from 'lucide-react';
+import { useState } from "react";
 
 export default function DashboardCor() {
-  const navigate = useNavigate();
-  
-  // Estado para o perfil personalizável
-  const [profileName, setProfileName] = useState('Corretor(a)');
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Carregar dados salvos ao montar o componente
-  useEffect(() => {
-    const savedName = localStorage.getItem('corretor_name');
-    const savedPhoto = localStorage.getItem('corretor_photo');
-    if (savedName) setProfileName(savedName);
-    if (savedPhoto) setProfilePhoto(savedPhoto);
-  }, []);
-
-  // Salvar alterações
-  const saveName = () => {
-    setIsEditingName(false);
-    localStorage.setItem('corretor_name', profileName);
-  };
-
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setProfilePhoto(result);
-        localStorage.setItem('corretor_photo', result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const [showLeads, setShowLeads] = useState(false);
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto pb-10">
-      
-      {/* SEÇÃO DE PERFIL */}
-      <div className="flex flex-col md:flex-row items-center gap-6 bg-card p-6 md:p-8 rounded-2xl border shadow-sm">
-        
-        {/* Foto de Perfil */}
-        <div className="relative group">
-          <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-background shadow-md bg-muted flex items-center justify-center">
-            {profilePhoto ? (
-              <img src={profilePhoto} alt="Perfil" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-3xl font-semibold text-muted-foreground">
-                {profileName.charAt(0).toUpperCase()}
-              </span>
-            )}
-          </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold tracking-tight">Painel do Corretor</h2>
+        <div className="flex space-x-3">
           <button 
-            onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 right-0 bg-primary text-primary-foreground p-2 rounded-full shadow-lg hover:bg-primary/90 transition-transform hover:scale-105"
-            title="Alterar foto"
+            onClick={() => setShowLeads(!showLeads)}
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 transition-colors"
           >
-            <Camera className="w-4 h-4 md:w-5 md:h-5" />
+            {showLeads ? "Ocultar Meus Leads" : "Carregar Meus Leads"}
           </button>
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handlePhotoUpload} 
-            accept="image/*" 
-            className="hidden" 
-          />
-        </div>
-
-        {/* Informações e Saudação */}
-        <div className="flex-1 text-center md:text-left space-y-2">
-          <h2 className="text-lg text-muted-foreground font-medium">Bem-vindo(a),</h2>
-          <div className="flex items-center justify-center md:justify-start gap-2">
-            {isEditingName ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={profileName}
-                  onChange={(e) => setProfileName(e.target.value)}
-                  className="text-2xl md:text-3xl font-bold bg-transparent border-b-2 border-primary focus:outline-none w-auto max-w-[200px]"
-                  autoFocus
-                  onKeyPress={(e) => e.key === 'Enter' && saveName()}
-                />
-                <button onClick={saveName} className="text-green-500 hover:text-green-600 transition-colors">
-                  <Check className="w-5 h-5" />
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-foreground">
-                  {profileName}
-                </h1>
-                <button 
-                  onClick={() => setIsEditingName(true)} 
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                  title="Editar nome"
-                >
-                  <Edit2 className="w-4 h-4 md:w-5 md:h-5" />
-                </button>
-              </div>
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground mt-1">Portal do Corretor</p>
+          <button className="inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+            Ver Minha Agenda
+          </button>
         </div>
       </div>
 
-      {/* GRID DE NAVEGAÇÃO */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
-        
-        {/* Card 1: Leads */}
-        <button 
-          onClick={() => navigate('/corretor/leads')}
-          className="group flex flex-col items-center justify-center p-8 bg-card border rounded-2xl shadow-sm hover:shadow-md transition-all hover:border-primary hover:-translate-y-1"
-        >
-          <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-            <Users className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+      {/* Kanban Board - Renderizado Apenas se showLeads for true */}
+      {showLeads ? (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-[calc(100vh-200px)] animate-in fade-in slide-in-from-top-4 duration-500">
+          
+          {/* Coluna 1 */}
+          <div className="flex flex-col rounded-xl bg-muted/30 border border-border/50 p-2">
+            <h3 className="font-semibold text-sm px-2 py-3 flex justify-between">
+              Novo Contato <span className="text-muted-foreground">3</span>
+            </h3>
+            <div className="flex-1 space-y-2 overflow-y-auto">
+              <div className="bg-card p-3 rounded-md shadow-sm border cursor-pointer hover:border-primary">
+                <p className="font-medium text-sm">João da Silva</p>
+                <p className="text-xs text-muted-foreground truncate">Anotações: Procurando ap de 2 quartos.</p>
+              </div>
+            </div>
           </div>
-          <h3 className="text-xl font-semibold mb-2 text-card-foreground">Meus Leads</h3>
-          <p className="text-sm text-muted-foreground text-center">
-            Acesse os contatos depositados pelo gerente.
-          </p>
-        </button>
 
-        {/* Card 2: Agenda */}
-        <button 
-          onClick={() => navigate('/corretor/agenda')}
-          className="group flex flex-col items-center justify-center p-8 bg-card border rounded-2xl shadow-sm hover:shadow-md transition-all hover:border-primary hover:-translate-y-1"
-        >
-          <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-            <Calendar className="w-8 h-8 text-green-600 dark:text-green-400" />
+          {/* Coluna 2 */}
+          <div className="flex flex-col rounded-xl bg-muted/30 border border-border/50 p-2">
+            <h3 className="font-semibold text-sm px-2 py-3 flex justify-between">
+              Em Atendimento <span className="text-muted-foreground">1</span>
+            </h3>
+            <div className="flex-1 space-y-2 overflow-y-auto">
+               <div className="bg-card p-3 rounded-md shadow-sm border cursor-pointer hover:border-primary">
+                <p className="font-medium text-sm">Maria Fernandes</p>
+                <p className="text-xs text-muted-foreground truncate rounded-full bg-accent text-accent-foreground px-2 py-0.5 mt-2 w-max border">Faltam documentos</p>
+              </div>
+            </div>
           </div>
-          <h3 className="text-xl font-semibold mb-2 text-card-foreground">Minha Agenda</h3>
-          <p className="text-sm text-muted-foreground text-center">
-            Organize seus compromissos e visitas.
-          </p>
-        </button>
 
-        {/* Card 3: Ferramenta Futura */}
-        <button 
-          onClick={() => navigate('/corretor/ferramenta')}
-          className="group flex flex-col items-center justify-center p-8 bg-card border rounded-2xl shadow-sm hover:shadow-md transition-all hover:border-primary hover:-translate-y-1 md:col-span-2 lg:col-span-1"
-        >
-          <div className="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-            <Wrench className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+          {/* Coluna 3 */}
+          <div className="flex flex-col rounded-xl bg-muted/30 border border-border/50 p-2">
+            <h3 className="font-semibold text-sm px-2 py-3 flex justify-between">
+              Avançado (Upload em Analise) <span className="text-muted-foreground">0</span>
+            </h3>
+            <div className="flex-1 space-y-2 overflow-y-auto">
+            </div>
           </div>
-          <h3 className="text-xl font-semibold mb-2 text-card-foreground">Nova Ferramenta</h3>
-          <p className="text-sm text-muted-foreground text-center">
-            Aguarde nossas próximas novidades.
-          </p>
-        </button>
 
-      </div>
+           {/* Coluna 4 */}
+           <div className="flex flex-col rounded-xl bg-muted/30 border border-border/50 p-2">
+            <h3 className="font-semibold text-sm px-2 py-3 flex justify-between">
+              Em Fechamento <span className="text-muted-foreground">2</span>
+            </h3>
+            <div className="flex-1 space-y-2 overflow-y-auto">
+              <div className="bg-card p-3 rounded-md shadow-sm border cursor-pointer hover:border-primary">
+                <p className="font-medium text-sm">Carlos Santos</p>
+                <p className="text-xs text-green-600 font-medium py-0.5 mt-1">Aprovado na Caixa</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center p-12 mt-8 text-center border rounded-xl border-dashed bg-muted/10 animate-in fade-in duration-500">
+           <h3 className="text-lg font-semibold tracking-tight mt-4">Nenhum Lead Visível</h3>
+           <p className="text-muted-foreground mt-2 text-sm max-w-sm">
+             Sua esteira de atendimentos (Kanban) está oculta no momento. Clique no botão "Carregar Meus Leads" acima para visualizar seus clientes.
+           </p>
+        </div>
+      )}
     </div>
   );
 }
