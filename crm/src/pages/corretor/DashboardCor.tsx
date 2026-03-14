@@ -1,29 +1,18 @@
-import { useState } from "react";
-
 export default function DashboardCor() {
-  const [showLeads, setShowLeads] = useState(false);
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold tracking-tight">Painel do Corretor</h2>
         <div className="flex space-x-3">
-          <button 
-            onClick={() => setShowLeads(!showLeads)}
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 transition-colors"
-          >
-            {showLeads ? "Ocultar Meus Leads" : "Carregar Meus Leads"}
-          </button>
           <button className="inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
             Ver Minha Agenda
           </button>
         </div>
       </div>
 
-      {/* Kanban Board - Renderizado Apenas se showLeads for true */}
-      {showLeads ? (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-[calc(100vh-200px)] animate-in fade-in slide-in-from-top-4 duration-500">
-          
+      {/* Kanban Board */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-[calc(100vh-200px)] animate-in fade-in slide-in-from-top-4 duration-500">
+        
           {/* Coluna 1 */}
           <div className="flex flex-col rounded-xl bg-muted/30 border border-border/50 p-2">
             <h3 className="font-semibold text-sm px-2 py-3 flex justify-between">
@@ -72,15 +61,7 @@ export default function DashboardCor() {
             </div>
           </div>
 
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center p-12 mt-8 text-center border rounded-xl border-dashed bg-muted/10 animate-in fade-in duration-500">
-           <h3 className="text-lg font-semibold tracking-tight mt-4">Nenhum Lead Visível</h3>
-           <p className="text-muted-foreground mt-2 text-sm max-w-sm">
-             Sua esteira de atendimentos (Kanban) está oculta no momento. Clique no botão "Carregar Meus Leads" acima para visualizar seus clientes.
-           </p>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
